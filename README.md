@@ -1,7 +1,3 @@
-Certainly! Below is a sample `README.md` for the `bleach` command-line tool, written in English and including the MIT License notice:
-
----
-
 # bleach
 
 `bleach` is a command-line utility designed to remove ANSI color codes and other escape sequences from files. It provides an easy way to clean up text files that contain unwanted formatting codes, especially useful for logs or output files generated from scripts and programs.

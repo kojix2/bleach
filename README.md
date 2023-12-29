@@ -12,7 +12,9 @@
 
 ## Installation
 
-(Installation instructions will be here. For example, you might provide a command to clone the repository or download a binary.)
+```bash
+cargo install --git https://github.com/kojix2/bleach
+```
 
 ## Usage
 

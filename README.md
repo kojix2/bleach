@@ -28,18 +28,23 @@ bleach [options] [file]
 ### Examples
 
 - Directly edit a file and remove color codes, creating a backup:
-  ```bash
-  bleach -i -b file.txt
-  ```
+
+```bash
+bleach -i -b file.txt
+```
+
 - Remove specific types of ANSI sequences from a file:
-  ```bash
-  bleach -i -c color,movement file.txt
-  ```
+
+```bash
+bleach -i -c color,movement file.txt
+```
 
 ## Contributing
 
 Contributions to `bleach` are welcome! Please feel free to submit pull requests or open issues to suggest improvements or report bugs.
 
 ## License
+
+This tool was created making full use of ChatGPT and Copilot.
 
 MIT

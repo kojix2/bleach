@@ -12,8 +12,8 @@ struct Opts {
     /// Create a backup file before cleaning
     #[clap(short, long)]
     backup: bool,
-    /// Specify types of ANSI sequences to clean (color, movement, all)
-    #[clap(short, long, default_value = "all")]
+    /// Specify types of ANSI sequences to clean
+    #[clap(short, long, default_value = "all", value_name = "color|movement|all")]
     clean_types: Vec<String>,
     /// Input file to clean
     #[clap(name = "FILE")]

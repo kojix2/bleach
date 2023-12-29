@@ -9,6 +9,7 @@
 - **In-Place Editing:** Modify files directly, saving the results back to the original file.
 - **Backup Option:** Create a backup of the original file before making any changes.
 - **Customizable Cleaning:** Specify the types of ANSI sequences to remove, such as color codes, cursor movements, etc.
+- **Automatic Cleaning:** Removes all ANSI sequences by default if no specific types are specified.
 
 ## Installation
 
@@ -27,7 +28,7 @@ bleach [options] [file]
 - `-h, --help`: Display the help menu.
 - `-i, --in-place`: Edit the file in-place, saving the result to the same file.
 - `-b, --backup`: Create a backup of the original file when using the `-i` option. The backup file is saved with the `.bak` extension.
-- `-c, --clean-types [types]`: Specify the types of ANSI sequences to remove, such as `color`, `movement`, `all`.
+- `-c, --clean-types [types]`: Specify the types of ANSI sequences to remove: `color`, `movement`, `all`. Defaults to `all` if not specified.
 
 ### Examples
 

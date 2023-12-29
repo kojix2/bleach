@@ -1,10 +1,10 @@
-use clap::Clap;
+use clap::Parser;
 use regex::Regex;
 use std::fs;
 use std::io::{self, Read, Write};
 
-#[derive(Clap)]
-#[clap(version = "0.1.0", author = "Your Name")]
+#[derive(Parser, Debug)]
+#[clap(version = "0.1.0", author = "kojix2")]
 struct Opts {
     #[clap(short, long)]
     in_place: bool,
@@ -21,8 +21,12 @@ fn main() -> io::Result<()> {
 
     // Input file specified or read from stdin
     match &opt.file {
-        Some(file_name) => fs::read_to_string(file_name)?.read_to_string(&mut buffer)?,
-        None => io::stdin().read_to_string(&mut buffer)?,
+        Some(file_name) => {
+            fs::File::open(file_name)?.read_to_string(&mut buffer)?;
+        }
+        None => {
+            io::stdin().read_to_string(&mut buffer)?;
+        }
     };
 
     let re = Regex::new("\x1b\\[[0-9;]*m").unwrap();

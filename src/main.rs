@@ -13,8 +13,8 @@ struct Opts {
     #[clap(short, long)]
     backup: bool,
     /// Specify types of ANSI sequences to clean (color, movement, all)
-    #[clap(short, long)]
-    clean_types: Option<Vec<String>>,
+    #[clap(short, long, default_value = "all")]
+    clean_types: Vec<String>,
     /// Input file to clean
     #[clap(name = "FILE")]
     file: Option<String>,
@@ -39,17 +39,15 @@ fn main() -> io::Result<()> {
 
     let mut result = buffer.clone();
 
-    if let Some(types) = &opt.clean_types {
-        if types.contains(&"color".to_string()) {
-            result = color_re.replace_all(&result, "").into_owned();
-        }
-        if types.contains(&"movement".to_string()) {
-            result = movement_re.replace_all(&result, "").into_owned();
-        }
-        if types.contains(&"all".to_string()) {
-            result = color_re.replace_all(&result, "").into_owned();
-            result = movement_re.replace_all(&result, "").into_owned();
-        }
+    if opt.clean_types.contains(&"color".to_string()) {
+        result = color_re.replace_all(&result, "").into_owned();
+    }
+    if opt.clean_types.contains(&"movement".to_string()) {
+        result = movement_re.replace_all(&result, "").into_owned();
+    }
+    if opt.clean_types.contains(&"all".to_string()) {
+        result = color_re.replace_all(&result, "").into_owned();
+        result = movement_re.replace_all(&result, "").into_owned();
     }
 
     if opt.in_place {

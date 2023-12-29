@@ -4,14 +4,18 @@ use std::fs;
 use std::io::{self, Read, Write};
 
 #[derive(Parser, Debug)]
-#[clap(version = "0.1.0", author = "kojix2")]
+#[command(author, version, about, long_about = None)]
 struct Opts {
+    /// Perform in-place cleaning
     #[clap(short, long)]
     in_place: bool,
+    /// Create a backup file before cleaning
     #[clap(short, long)]
     backup: bool,
+    /// Specify types of ANSI sequences to clean (color, movement, all)
     #[clap(short, long)]
     clean_types: Option<Vec<String>>,
+    /// Input file to clean
     #[clap(name = "FILE")]
     file: Option<String>,
 }

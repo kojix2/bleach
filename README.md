@@ -4,13 +4,6 @@
 
 `bleach` is a command-line utility designed to remove ANSI color codes and other escape sequences from files. It provides an easy way to clean up text files that contain unwanted formatting codes, especially useful for logs or output files generated from scripts and programs.
 
-## Features
-
-- **In-Place Editing:** Modify files directly, saving the results back to the original file.
-- **Backup Option:** Create a backup of the original file before making any changes.
-- **Customizable Cleaning:** Specify the types of ANSI sequences to remove, such as color codes, cursor movements, etc.
-- **Automatic Cleaning:** Removes all ANSI sequences by default if no specific types are specified.
-
 ## Installation
 
 ```bash

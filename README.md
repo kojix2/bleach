@@ -1,5 +1,7 @@
 # bleach
 
+[![Cargo Build & Test](https://github.com/kojix2/bleach/actions/workflows/ci.yml/badge.svg)](https://github.com/kojix2/bleach/actions/workflows/ci.yml)
+
 `bleach` is a command-line utility designed to remove ANSI color codes and other escape sequences from files. It provides an easy way to clean up text files that contain unwanted formatting codes, especially useful for logs or output files generated from scripts and programs.
 
 ## Features

@@ -33,19 +33,34 @@ fn main() -> io::Result<()> {
         }
     };
 
-    // Different types of regex for different types of ANSI sequences
     let color_re = Regex::new("\x1b\\[[0-9;]*m").unwrap();
     let movement_re = Regex::new("\x1b\\[[0-9;]*[ABCD]").unwrap();
 
     let mut result = buffer.clone();
 
     if opt.clean_types.contains(&"color".to_string()) {
+        let color_matches = color_re.find_iter(&result).count();
+        if color_matches > 0 {
+            eprintln!("Removing {} color ANSI sequences", color_matches);
+        }
         result = color_re.replace_all(&result, "").into_owned();
     }
     if opt.clean_types.contains(&"movement".to_string()) {
+        let movement_matches = movement_re.find_iter(&result).count();
+        if movement_matches > 0 {
+            eprintln!("Removing {} movement ANSI sequences", movement_matches);
+        }
         result = movement_re.replace_all(&result, "").into_owned();
     }
     if opt.clean_types.contains(&"all".to_string()) {
+        let color_matches = color_re.find_iter(&result).count();
+        let movement_matches = movement_re.find_iter(&result).count();
+        if color_matches > 0 || movement_matches > 0 {
+            eprintln!(
+                "Removing {} color and {} movement ANSI sequences",
+                color_matches, movement_matches
+            );
+        }
         result = color_re.replace_all(&result, "").into_owned();
         result = movement_re.replace_all(&result, "").into_owned();
     }

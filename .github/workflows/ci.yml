@@ -26,6 +26,4 @@ jobs:
       - name: Run tests
         run: cargo test --verbose
       - name: Check CLI tool help
-        run: bleach --help
-      - name: Check CLI tool version
-        run: bleach --version
+        run: cargo install --path . && bleach --help && bleach --version

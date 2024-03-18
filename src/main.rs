@@ -78,3 +78,41 @@ fn clean_text(opts: &Opts, re: &Regex, text: &str) -> String {
         ""
     }).to_string()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use regex::Regex;
+
+    #[test]
+    fn test_clean_text_removes_color_sequences() {
+        let opts = Opts {
+            in_place: false,
+            backup: false,
+            clean_types: vec!["color".to_string()],
+            file: None,
+            verbose: false,
+            quiet: true,
+        };
+        let color_re = Regex::new("\x1b\\[[0-9;]*m").unwrap();
+        let text = "This is a \x1b[31mred\x1b[0m text.";
+        let cleaned_text = clean_text(&opts, &color_re, text);
+        assert_eq!(cleaned_text, "This is a red text.");
+    }
+
+    #[test]
+    fn test_clean_text_removes_movement_sequences() {
+        let opts = Opts {
+            in_place: false,
+            backup: false,
+            clean_types: vec!["movement".to_string()],
+            file: None,
+            verbose: false,
+            quiet: true,
+        };
+        let movement_re = Regex::new("\x1b\\[[0-9;]*[ABCD]").unwrap();
+        let text = "Text with \x1b[1Amovement\x1b[1B.";
+        let cleaned_text = clean_text(&opts, &movement_re, text);
+        assert_eq!(cleaned_text, "Text with movement.");
+    }
+}

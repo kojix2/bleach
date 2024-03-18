@@ -18,6 +18,12 @@ struct Opts {
     /// Input file to clean
     #[clap(name = "FILE")]
     file: Option<String>,
+    /// Verbose mode
+    #[clap(short, long)]
+    verbose: bool,
+    /// Quiet mode
+    #[clap(short, long)]
+    quiet: bool,
 }
 
 fn main() -> io::Result<()> {
@@ -33,48 +39,42 @@ fn main() -> io::Result<()> {
         }
     };
 
-    let color_re = Regex::new("\x1b\\[[0-9;]*m").unwrap();
-    let movement_re = Regex::new("\x1b\\[[0-9;]*[ABCD]").unwrap();
+    let combined_re = Regex::new("\x1b\\[[0-9;]*[mABCD]").unwrap();
 
-    let mut result = buffer.clone();
-
-    if opt.clean_types.contains(&"color".to_string()) {
-        let color_matches = color_re.find_iter(&result).count();
-        if color_matches > 0 {
-            eprintln!("Removing {} color ANSI sequences", color_matches);
+    let result = if opt.clean_types.contains(&"all".to_string()) || (opt.clean_types.contains(&"color".to_string()) && opt.clean_types.contains(&"movement".to_string())) {
+        clean_text(&opt, &combined_re, &buffer)
+    } else {
+        let mut temp_result = buffer.clone();
+        if opt.clean_types.contains(&"color".to_string()) {
+            let color_re = Regex::new("\x1b\\[[0-9;]*m").unwrap();
+            temp_result = clean_text(&opt, &color_re, &temp_result);
         }
-        result = color_re.replace_all(&result, "").into_owned();
-    }
-    if opt.clean_types.contains(&"movement".to_string()) {
-        let movement_matches = movement_re.find_iter(&result).count();
-        if movement_matches > 0 {
-            eprintln!("Removing {} movement ANSI sequences", movement_matches);
+        if opt.clean_types.contains(&"movement".to_string()) {
+            let movement_re = Regex::new("\x1b\\[[0-9;]*[ABCD]").unwrap();
+            temp_result = clean_text(&opt, &movement_re, &temp_result);
         }
-        result = movement_re.replace_all(&result, "").into_owned();
-    }
-    if opt.clean_types.contains(&"all".to_string()) {
-        let color_matches = color_re.find_iter(&result).count();
-        let movement_matches = movement_re.find_iter(&result).count();
-        if color_matches > 0 || movement_matches > 0 {
-            eprintln!(
-                "Removing {} color and {} movement ANSI sequences",
-                color_matches, movement_matches
-            );
-        }
-        result = color_re.replace_all(&result, "").into_owned();
-        result = movement_re.replace_all(&result, "").into_owned();
-    }
+        temp_result
+    };
 
     if opt.in_place {
         if let Some(file_name) = &opt.file {
             if opt.backup {
                 fs::copy(file_name, format!("{}.bak", file_name))?;
             }
-            fs::write(file_name, result.as_bytes())?;
+            fs::write(file_name, &result)?;
         }
     } else {
         io::stdout().write_all(result.as_bytes())?;
     }
 
     Ok(())
+}
+
+fn clean_text(opts: &Opts, re: &Regex, text: &str) -> String {
+    re.replace_all(text, |caps: &regex::Captures| {
+        if opts.verbose && !opts.quiet {
+            println!("Removing ANSI sequence: {}", &caps[0]);
+        }
+        ""
+    }).to_string()
 }

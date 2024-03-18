@@ -40,18 +40,22 @@ fn main() -> io::Result<()> {
     };
 
     let combined_re = Regex::new("\x1b\\[[0-9;]*[mABCD]").unwrap();
+    let mut replacements_made = 0;
 
-    let result = if opt.clean_types.contains(&"all".to_string()) || (opt.clean_types.contains(&"color".to_string()) && opt.clean_types.contains(&"movement".to_string())) {
-        clean_text(&opt, &combined_re, &buffer)
+    let result = if opt.clean_types.contains(&"all".to_string())
+        || (opt.clean_types.contains(&"color".to_string())
+            && opt.clean_types.contains(&"movement".to_string()))
+    {
+        clean_text(&opt, &combined_re, &buffer, &mut replacements_made)
     } else {
         let mut temp_result = buffer.clone();
         if opt.clean_types.contains(&"color".to_string()) {
             let color_re = Regex::new("\x1b\\[[0-9;]*m").unwrap();
-            temp_result = clean_text(&opt, &color_re, &temp_result);
+            temp_result = clean_text(&opt, &color_re, &temp_result, &mut replacements_made);
         }
         if opt.clean_types.contains(&"movement".to_string()) {
             let movement_re = Regex::new("\x1b\\[[0-9;]*[ABCD]").unwrap();
-            temp_result = clean_text(&opt, &movement_re, &temp_result);
+            temp_result = clean_text(&opt, &movement_re, &temp_result, &mut replacements_made);
         }
         temp_result
     };
@@ -67,16 +71,22 @@ fn main() -> io::Result<()> {
         io::stdout().write_all(result.as_bytes())?;
     }
 
+    if !opt.quiet {
+        eprintln!("Total ANSI sequences removed: {}", replacements_made);
+    }
+
     Ok(())
 }
 
-fn clean_text(opts: &Opts, re: &Regex, text: &str) -> String {
+fn clean_text(opts: &Opts, re: &Regex, text: &str, replacements_made: &mut usize) -> String {
     re.replace_all(text, |caps: &regex::Captures| {
+        *replacements_made += 1;
         if opts.verbose && !opts.quiet {
             eprintln!("Removing ANSI sequence: {:?}", &caps[0]);
         }
         ""
-    }).to_string()
+    })
+    .to_string()
 }
 
 #[cfg(test)]
@@ -94,10 +104,12 @@ mod tests {
             verbose: false,
             quiet: true,
         };
+        let mut replacements_made = 0;
         let color_re = Regex::new("\x1b\\[[0-9;]*m").unwrap();
         let text = "This is a \x1b[31mred\x1b[0m text.";
-        let cleaned_text = clean_text(&opts, &color_re, text);
+        let cleaned_text = clean_text(&opts, &color_re, text, &mut replacements_made);
         assert_eq!(cleaned_text, "This is a red text.");
+        assert_eq!(replacements_made, 2); // Assuming there are two color sequences to be removed.
     }
 
     #[test]
@@ -110,9 +122,11 @@ mod tests {
             verbose: false,
             quiet: true,
         };
+        let mut replacements_made = 0;
         let movement_re = Regex::new("\x1b\\[[0-9;]*[ABCD]").unwrap();
         let text = "Text with \x1b[1Amovement\x1b[1B.";
-        let cleaned_text = clean_text(&opts, &movement_re, text);
+        let cleaned_text = clean_text(&opts, &movement_re, text, &mut replacements_made);
         assert_eq!(cleaned_text, "Text with movement.");
+        assert_eq!(replacements_made, 2); // Assuming there are two movement sequences to be removed.
     }
 }

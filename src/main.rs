@@ -73,7 +73,7 @@ fn main() -> io::Result<()> {
 fn clean_text(opts: &Opts, re: &Regex, text: &str) -> String {
     re.replace_all(text, |caps: &regex::Captures| {
         if opts.verbose && !opts.quiet {
-            println!("Removing ANSI sequence: {}", &caps[0]);
+            eprintln!("Removing ANSI sequence: {:?}", &caps[0]);
         }
         ""
     }).to_string()
